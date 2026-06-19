@@ -76,3 +76,27 @@ export const updateOrderStatus = async (
         }
     );
 };
+export const getDashboardData = async () => {
+
+    return await api.get(
+        "/orders/admin/dashboard",
+        {
+            headers: {
+                Authorization:
+                    `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+};
+export const getOrderStatusCounts = async () => {
+
+    return await api.get(
+        "/orders/admin/order-status",
+        {
+            headers: {
+                Authorization:
+                    `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+};

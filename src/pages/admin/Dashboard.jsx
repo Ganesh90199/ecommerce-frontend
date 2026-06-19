@@ -1,165 +1,248 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+    getDashboardData,
+    getOrderStatusCounts
+} from "../../services/orderService";
 
-function Dashboard() {
-    const products =
-        JSON.parse(
-            localStorage.getItem("adminProducts")
-        ) || [];
+function AdminDashboard() {
 
-    const orders =
-        JSON.parse(
-            localStorage.getItem("orders")
-        ) || [];
+    const [dashboard, setDashboard] =
+        useState({
+            totalProducts: 0,
+            totalOrders: 0,
+            totalUsers: 0,
+            totalRevenue: 0
+        });
 
-    const totalRevenue =
-        orders.reduce(
-            (sum, order) =>
-                sum + Number(order.total || 0),
-            0
-        );
+    const [statusData, setStatusData] =
+        useState([]);
 
-    const deliveredOrders =
-        orders.filter(
-            (order) =>
-                order.status === "Delivered"
-        ).length;
+    useEffect(() => {
 
-    const cancelledOrders =
-        orders.filter(
-            (order) =>
-                order.status === "Cancelled"
-        ).length;
+        loadDashboard();
 
-    const lowStock =
-        products.filter(
-            (p) =>
-                p.stock > 0 &&
-                p.stock <= 5
-        ).length;
+    }, []);
 
-    const outOfStock =
-        products.filter(
-            (p) =>
-                Number(p.stock) === 0
-        ).length;
+    const loadDashboard = async () => {
+
+        try {
+
+            const dashboardResponse =
+                await getDashboardData();
+
+            setDashboard(
+                dashboardResponse.data
+            );
+
+            const statusResponse =
+                await getOrderStatusCounts();
+
+            setStatusData(
+                statusResponse.data
+            );
+
+        } catch (error) {
+
+            console.log(error);
+        }
+    };
 
     return (
+
         <div className="container py-4">
 
-            <h1 className="mb-4">
+            <h2 className="mb-4">
                 📊 Admin Dashboard
-            </h1>
+            </h2>
 
-            <div className="row">
+            <div className="row g-4 mb-4">
 
-                <div className="col-md-3 mb-3">
-                    <div className="card bg-primary text-white shadow">
-                        <div className="card-body">
-                            <h6>Total Products</h6>
-                            <h2>{products.length}</h2>
+                <div className="col-lg-2 col-md-4 col-sm-6">
+
+                    <div
+    className="card shadow border-0 h-100"
+>
+
+                        <div className="card-body text-center">
+
+                            <h6 className="text-muted">
+                                Total Products
+                            </h6>
+
+                            <h2 className="fw-bold text-primary">
+                                {dashboard.totalProducts}
+                            </h2>
+
                         </div>
+
                     </div>
+
                 </div>
 
-                <div className="col-md-3 mb-3">
-                    <div className="card bg-success text-white shadow">
-                        <div className="card-body">
-                            <h6>Total Orders</h6>
-                            <h2>{orders.length}</h2>
+                <div className="col-lg-2 col-md-4 col-sm-6">
+
+                    <div
+    className="card shadow border-0 h-100"
+>
+
+                        <div className="card-body text-center">
+
+                            <h6 className="text-muted">
+                                Total Orders
+                            </h6>
+
+                            <h2 className="fw-bold text-success">
+                                {dashboard.totalOrders}
+                            </h2>
+
                         </div>
+
                     </div>
+
                 </div>
 
-                <div className="col-md-3 mb-3">
-                    <div className="card bg-warning shadow">
-                        <div className="card-body">
-                            <h6>Revenue</h6>
-                            <h2>₹{totalRevenue}</h2>
+                <div className="col-lg-2 col-md-4 col-sm-6">
+
+                    <div
+    className="card shadow border-0 h-100"
+>
+
+                        <div className="card-body text-center">
+
+                            <h6 className="text-muted">
+                                Total Users
+                            </h6>
+
+                            <h2 className="fw-bold text-warning">
+                                {dashboard.totalUsers}
+                            </h2>
+
                         </div>
+
                     </div>
+
                 </div>
 
-                <div className="col-md-3 mb-3">
-                    <div className="card bg-danger text-white shadow">
-                        <div className="card-body">
-                            <h6>Cancelled</h6>
-                            <h2>{cancelledOrders}</h2>
+                <div className="col-lg-2 col-md-4 col-sm-6">
+
+                    <div
+    className="card shadow border-0 h-100"
+>
+
+                        <div className="card-body text-center">
+
+                            <h6 className="text-muted">
+                                Total Revenue
+                            </h6>
+
+                            <h3 className="fw-bold text-danger">
+                                ₹{dashboard.totalRevenue.toLocaleString()}
+                            </h3>
                         </div>
+
                     </div>
+
+                </div>
+
+                <div className="col-lg-2 col-md-4 col-sm-6">
+
+                    <div
+    className="card shadow border-0 h-100"
+>
+
+                        <div className="card-body text-center">
+
+                            <h6 className="text-muted">
+                                Low Stock Products
+                            </h6>
+
+                            <h2 className="fw-bold text-warning">
+                                {dashboard.lowStockProducts}
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div className="col-lg-2 col-md-4 col-sm-6">
+
+                    <div
+    className="card shadow border-0 h-100"
+>
+
+                        <div className="card-body text-center">
+
+                            <h6 className="text-muted">
+                                Out Of Stock Products
+                            </h6>
+
+                            <h2 className="fw-bold text-danger">
+                                {dashboard.outOfStockProducts}
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div
+    className="card shadow border-0 h-100"
+>
+
+                    <div className="card-header bg-dark text-white">
+
+                        <h5 className="mb-0">
+                            Orders By Status
+                        </h5>
+
+                    </div>
+
+                    <div className="card-body">
+
+                        <table className="table table-bordered">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Orders</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {statusData.map((item) => (
+
+                                    <tr key={item.status}>
+
+                                        <td>
+                                            {item.status}
+                                        </td>
+
+                                        <td>
+                                            {item.count}
+                                        </td>
+
+                                    </tr>
+
+                                ))}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
                 </div>
 
             </div>
-
-            <div className="row">
-
-                <div className="col-md-4 mb-3">
-                    <div className="card shadow">
-                        <div className="card-body">
-                            <h5>
-                                Delivered Orders
-                            </h5>
-                            <h2>{deliveredOrders}</h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="col-md-4 mb-3">
-                    <div className="card shadow">
-                        <div className="card-body">
-                            <h5>
-                                Low Stock
-                            </h5>
-                            <h2>{lowStock}</h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="col-md-4 mb-3">
-                    <div className="card shadow">
-                        <div className="card-body">
-                            <h5>
-                                Out Of Stock
-                            </h5>
-                            <h2>{outOfStock}</h2>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div className="card shadow mt-4">
-                <div className="card-header">
-                    <h4>Quick Actions</h4>
-                </div>
-
-                <div className="card-body d-flex gap-2 flex-wrap">
-
-                    <Link
-                        to="/admin/add-product"
-                        className="btn btn-success"
-                    >
-                        Add Product
-                    </Link>
-
-                    <Link
-                        to="/admin/manage-products"
-                        className="btn btn-primary"
-                    >
-                        Manage Products
-                    </Link>
-
-                    <Link
-                        to="/admin/manage-orders"
-                        className="btn btn-warning"
-                    >
-                        Manage Orders
-                    </Link>
-
-                </div>
-            </div>
-
         </div>
+
     );
 }
 
-export default Dashboard;
+export default AdminDashboard;
