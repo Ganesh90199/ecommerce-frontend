@@ -1,4 +1,7 @@
 import { useState } from "react";
+import {
+    addProduct as addProductApi
+} from "../../services/productService";
 
 function AddProduct() {
 
@@ -6,7 +9,9 @@ function AddProduct() {
         name: "",
         brand: "",
         category: "",
+        description: "",
         price: "",
+        rating: "",
         imageUrl: "",
         stock: "",
     });
@@ -19,34 +24,52 @@ function AddProduct() {
         });
     };
 
-    const addProduct = () => {
+    const addProduct = async () => {
 
-        const products =
-            JSON.parse(
-                localStorage.getItem("adminProducts")
-            ) || [];
+        try {
 
-        products.push({
-            id: Date.now(),
-            ...product,
-            stock: Number(product.stock),
-        });
+            await addProductApi({
 
-        localStorage.setItem(
-            "adminProducts",
-            JSON.stringify(products)
-        );
+                name: product.name,
 
-        alert("Product Added Successfully");
+                brand: product.brand,
 
-        setProduct({
-            name: "",
-            brand: "",
-            category: "",
-            price: "",
-            imageUrl: "",
-            stock: 0,
-        });
+                category: product.category,
+
+                description: product.description,
+
+                price: Number(product.price),
+
+                rating: Number(product.rating),
+
+                imageUrl: product.imageUrl,
+
+                quantity: Number(product.stock)
+            });
+
+            alert(
+                "Product Added Successfully"
+            );
+
+            setProduct({
+
+                name: "",
+                brand: "",
+                category: "",
+                description: "",
+                price: "",
+                rating: "",
+                imageUrl: "",
+                stock: ""
+            });
+        } catch (error) {
+
+            console.log(error);
+
+            alert(
+                "Failed To Add Product"
+            );
+        }
     };
 
     return (
@@ -81,6 +104,24 @@ function AddProduct() {
                         placeholder="Category"
                         name="category"
                         value={product.category}
+                        onChange={handleChange}
+                    />
+
+                    <textarea
+                        className="form-control mb-3"
+                        placeholder="Description"
+                        name="description"
+                        value={product.description}
+                        onChange={handleChange}
+                    />
+
+                    <input
+                        type="number"
+                        step="0.1"
+                        className="form-control mb-3"
+                        placeholder="Rating"
+                        name="rating"
+                        value={product.rating}
                         onChange={handleChange}
                     />
 
@@ -125,5 +166,4 @@ function AddProduct() {
         </div>
     );
 }
-
 export default AddProduct;

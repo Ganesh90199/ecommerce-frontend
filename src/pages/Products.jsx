@@ -219,10 +219,6 @@ function Products() {
                 new Event("cartUpdated")
             );
 
-            setCart(
-                await getCartDetails()
-                    .then(res => res.data)
-            );
 
             setToastMessage(
                 `${product.name} added to cart`
@@ -274,6 +270,9 @@ function Products() {
 
         await loadCart();
 
+        window.dispatchEvent(
+            new Event("cartUpdated")
+        );
         setToastMessage(
             `${product.name} quantity increased`
         );
@@ -310,6 +309,10 @@ function Products() {
         }
 
         await loadCart();
+
+        window.dispatchEvent(
+            new Event("cartUpdated")
+        );
 
         setToastMessage(
             `${product.name} quantity decreased`
@@ -665,33 +668,46 @@ function Products() {
 
                                             <button
                                                 className="btn btn-success"
-                                                onClick={() => {
+                                                onClick={async () => {
 
-                                                    const cartItem =
-                                                        cart.find(
-                                                            item => item.productId === product.id
+                                                    try {
+
+                                                        const existing =
+                                                            cart.find(
+                                                                item =>
+                                                                    item.productId === product.id
+                                                            );
+
+                                                        if (!existing) {
+
+                                                            await addToCartApi(
+                                                                product.id,
+                                                                1
+                                                            );
+
+                                                            await loadCart();
+
+                                                            window.dispatchEvent(
+                                                                new Event("cartUpdated")
+                                                            );
+                                                        }
+
+                                                        navigate("/checkout");
+
+                                                    } catch (error) {
+
+                                                        console.log(error);
+
+                                                        setToastMessage(
+                                                            "Failed to proceed"
                                                         );
 
-                                                    localStorage.setItem(
-                                                        "buyNowProduct",
-                                                        JSON.stringify({
-                                                            ...product,
-                                                            cartQuantity:
-                                                                Number(
-                                                                    cartItem?.cartQuantity
-                                                                ) > 0
-                                                                    ? cartItem.cartQuantity
-                                                                    : 1
-                                                        })
-                                                    );
-
-                                                    window.location.href =
-                                                        "/checkout";
+                                                        setShowToast(true);
+                                                    }
                                                 }}
                                             >
                                                 Buy Now
                                             </button>
-
                                         )
                                     }
 

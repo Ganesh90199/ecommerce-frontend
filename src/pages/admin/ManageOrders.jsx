@@ -135,8 +135,18 @@ function ManageOrders() {
                                             <td>
 
                                                 <select
-                                                    className="form-select"
+                                                    style={{
+                                                        cursor:
+                                                            order.status === "CANCELLED" ||
+                                                                order.status === "DELIVERED"
+                                                                ? "not-allowed"
+                                                                : "pointer"
+                                                    }}
                                                     value={order.status}
+                                                    disabled={
+                                                        order.status === "CANCELLED" ||
+                                                        order.status === "DELIVERED"
+                                                    }
                                                     onChange={(e) =>
                                                         updateStatus(
                                                             order.id,

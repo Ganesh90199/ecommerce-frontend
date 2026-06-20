@@ -75,8 +75,15 @@ const Cart = () => {
         item.cartQuantity + 1
       );
 
+      console.log(
+        "After Update Clicked"
+      );
+
       await loadCart();
 
+      window.dispatchEvent(
+        new Event("cartUpdated")
+      );
       setToastMessage(
         `${item.name} quantity decreased`
       );
@@ -120,10 +127,13 @@ const Cart = () => {
 
       await loadCart();
 
+      window.dispatchEvent(
+        new Event("cartUpdated")
+      );
+
       setToastMessage(
         `${item.name} quantity decreased`
       );
-
       setShowToast(true);
 
       setTimeout(() => {
@@ -143,11 +153,20 @@ const Cart = () => {
 
       setCartItems([]);
 
+      window.dispatchEvent(
+        new Event("cartUpdated")
+      );
+
       setToastMessage(
         "Cart cleared"
       );
 
       setShowToast(true);
+      setTimeout(() => {
+
+        setShowToast(false);
+
+      }, 1500);
 
     } catch (error) {
 
@@ -173,6 +192,9 @@ const Cart = () => {
 
       await loadCart();
 
+      window.dispatchEvent(
+        new Event("cartUpdated")
+      );
       setToastMessage("Item removed");
 
       setShowToast(true);

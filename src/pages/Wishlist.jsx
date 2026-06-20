@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import {
+  addToCart as addToCartApi
+} from "../services/cartService";
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
@@ -21,53 +24,41 @@ function Wishlist() {
       "wishlist",
       JSON.stringify(updatedWishlist)
     );
+    window.dispatchEvent(
+      new Event("wishlistUpdated")
+    );
   };
 
-  const moveToCart = (product) => {
-    const cart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+  const moveToCart = async (product) => {
 
-    const exists = cart.find(
-      (item) => item.id === product.id
-    );
+    try {
 
-    let updatedCart;
-
-    if (exists) {
-
-      updatedCart = cart.map((item) =>
-        item.id === product.id
-          ? {
-            ...item,
-            cartQuantity:
-              item.cartQuantity + 1,
-          }
-          : item
+      await addToCartApi(
+        product.id,
+        1
       );
 
-    } else {
+      removeFromWishlist(
+        product.id
+      );
 
-      updatedCart = [
-        ...cart,
-        {
-          ...product,
-          cartQuantity: 1,
-          quantity:
-            product.quantity ||
-            product.stock ||
-            0,
-        },
-      ];
+      window.dispatchEvent(
+        new Event("cartUpdated")
+      );
+
+      window.dispatchEvent(
+        new Event("wishlistUpdated")
+      );
+
+      alert("Moved To Cart");
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Failed To Move");
     }
-
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(updatedCart)
-    );
-
-    alert("Moved To Cart");
   };
-
   return (
     <div className="container py-4">
 
@@ -87,7 +78,21 @@ function Wishlist() {
               className="col-md-3 mb-4"
               key={product.id}
             >
-              <div className="card h-100 shadow-sm">
+              <div className="card h-100 shadow-sm position-relative">
+
+                <button
+                  className="btn position-absolute top-0 end-0 m-2 border-0 fs-4"
+                  style={{
+                    background: "white",
+                    borderRadius: "50%",
+                    zIndex: 10
+                  }}
+                  onClick={() =>
+                    removeFromWishlist(product.id)
+                  }
+                >
+                  ❤️
+                </button>
 
                 <img
                   src={product.imageUrl}
@@ -99,39 +104,37 @@ function Wishlist() {
                   }}
                 />
 
-                <div className="card-body">
 
-                  <h5>{product.name}</h5>
+                <h5>{product.name}</h5>
 
-                  <h6 className="text-success">
-                    ₹{product.price}
-                  </h6>
+                <h6 className="text-success">
+                  ₹{product.price}
+                </h6>
 
-                  <div className="d-grid gap-2">
+                <div className="d-grid gap-2">
 
-                    <button
-                      className="btn btn-primary"
-                      onClick={() =>
-                        moveToCart(product)
-                      }
-                    >
-                      Move To Cart
-                    </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() =>
+                      moveToCart(product)
+                    }
+                  >
+                    Move To Cart
+                  </button>
 
-                    <button
-                      className="btn btn-danger"
-                      onClick={() =>
-                        removeFromWishlist(product.id)
-                      }
-                    >
-                      Remove
-                    </button>
-
-                  </div>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() =>
+                      removeFromWishlist(product.id)
+                    }
+                  >
+                    Remove
+                  </button>
 
                 </div>
 
               </div>
+
             </div>
           ))}
 

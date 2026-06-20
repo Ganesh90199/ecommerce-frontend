@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
+import {
+    getProductById,
+    updateProduct as updateProductApi
+} from "../../services/productService";
 function UpdateProduct() {
 
     const { id } = useParams();
@@ -17,22 +20,40 @@ function UpdateProduct() {
 
     useEffect(() => {
 
-        const products =
-            JSON.parse(
-                localStorage.getItem("adminProducts")
-            ) || [];
-
-        const selectedProduct =
-            products.find(
-                (p) => p.id === Number(id)
-            );
-
-        if (selectedProduct) {
-            setProduct(selectedProduct);
-        }
+        loadProduct();
 
     }, [id]);
 
+    const loadProduct = async () => {
+
+        try {
+
+            const response =
+                await getProductById(id);
+
+            setProduct({
+
+                name: response.data.name || "",
+
+                brand: response.data.brand || "",
+
+                category: response.data.category || "",
+
+                price: response.data.price || "",
+
+                imageUrl: response.data.imageUrl || "",
+
+                stock: response.data.quantity || 0,
+
+                description:
+                    response.data.description || ""
+            });
+
+        } catch (error) {
+
+            console.log(error);
+        }
+    };
     const handleChange = (e) => {
 
         setProduct({
@@ -41,31 +62,40 @@ function UpdateProduct() {
         });
     };
 
-    const updateProduct = () => {
+    const updateProduct = async () => {
 
-        const products =
-            JSON.parse(
-                localStorage.getItem("adminProducts")
-            ) || [];
+        try {
 
-        const updatedProducts =
-            products.map((p) =>
-                p.id === Number(id)
-                    ? {
-                        ...product,
-                        stock: Number(product.stock)
-                    }
-                    : p
+            await updateProductApi(
+                id,
+                {
+                    name: product.name,
+                    brand: product.brand,
+                    category: product.category,
+                    price: Number(product.price),
+                    imageUrl: product.imageUrl,
+                    quantity: Number(product.stock),
+                    description: product.description,
+                    rating: 4.5
+                }
             );
 
-        localStorage.setItem(
-            "adminProducts",
-            JSON.stringify(updatedProducts)
-        );
+            alert(
+                "Product Updated Successfully"
+            );
 
-        alert("Product Updated Successfully");
+            navigate(
+                "/admin/manage-products"
+            );
 
-        navigate("/admin/manage-products");
+        } catch (error) {
+
+            console.log(error);
+
+            alert(
+                "Failed To Update Product"
+            );
+        }
     };
 
     return (

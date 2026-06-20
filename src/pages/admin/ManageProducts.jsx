@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+    getAllProducts,
+    deleteProduct as deleteProductApi
+} from "../../services/productService";
 
 function ManageProducts() {
 
@@ -8,30 +12,57 @@ function ManageProducts() {
 
     useEffect(() => {
 
-        const savedProducts =
-            JSON.parse(
-                localStorage.getItem("adminProducts")
-            ) || [];
-
-        setProducts(savedProducts);
+        loadProducts();
 
     }, []);
 
-    const deleteProduct = (id) => {
+    const loadProducts = async () => {
 
-        const updatedProducts =
-            products.filter(
-                (product) => product.id !== id
+        try {
+
+            const response =
+                await getAllProducts();
+
+            setProducts(
+                response.data
             );
 
-        setProducts(updatedProducts);
+        } catch (error) {
 
-        localStorage.setItem(
-            "adminProducts",
-            JSON.stringify(updatedProducts)
-        );
+            console.log(error);
+        }
     };
 
+    const deleteProduct = async (id) => {
+
+        const confirmDelete =
+            window.confirm(
+                "Are you sure you want to delete this product?"
+            );
+
+        if (!confirmDelete) {
+            return;
+        }
+
+        try {
+
+            await deleteProductApi(id);
+
+            alert(
+                "Product Deleted Successfully"
+            );
+
+            loadProducts();
+
+        } catch (error) {
+
+            console.log(error);
+
+            alert(
+                "Failed To Delete Product"
+            );
+        }
+    };
     const filteredProducts =
         products.filter((product) =>
             product.name
@@ -93,6 +124,7 @@ function ManageProducts() {
                                         <th>Category</th>
                                         <th>Price</th>
                                         <th>Stock</th>
+                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
 
@@ -133,45 +165,15 @@ function ManageProducts() {
                                                 </td>
 
                                                 <td>
-                                                    {product.stock}
+                                                    {product.quantity}
                                                 </td>
 
                                                 <td>
-
-                                                    {
-                                                        Number(product.stock) === 0 ? (
-
-                                                            <span className="badge bg-danger">
-                                                                Out Of Stock
-                                                            </span>
-
-                                                        ) : Number(product.stock) <= 5 ? (
-
-                                                            <span className="badge bg-warning text-dark">
-                                                                Low Stock
-                                                            </span>
-
-                                                        ) : (
-
-                                                            <span className="badge bg-success">
-                                                                In Stock
-                                                            </span>
-
-                                                        )
-                                                    }
-
-                                                </td>
-
-                                                <td>
-                                                    {product.stock || 0}
-                                                </td>
-
-                                                <td>
-                                                    {(product.stock || 0) === 0 ? (
+                                                    {product.quantity === 0 ? (
                                                         <span className="badge bg-danger">
                                                             Out Of Stock
                                                         </span>
-                                                    ) : (product.stock || 0) <= 5 ? (
+                                                    ) : product.quantity <= 5 ? (
                                                         <span className="badge bg-warning text-dark">
                                                             Low Stock
                                                         </span>
@@ -181,9 +183,6 @@ function ManageProducts() {
                                                         </span>
                                                     )}
                                                 </td>
-
-
-
                                                 <td>
 
                                                     <div className="d-flex gap-2">

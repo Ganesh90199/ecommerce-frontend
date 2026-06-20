@@ -36,7 +36,6 @@ function Checkout() {
             setCartItems(
                 cartResponse.data
             );
-
             const addressResponse =
                 await getAddresses();
 
@@ -60,7 +59,6 @@ function Checkout() {
             console.log(error);
         }
     };
-
     const total =
         cartItems.reduce(
             (sum, item) =>
@@ -111,20 +109,33 @@ function Checkout() {
 
             await clearCart();
 
+            window.dispatchEvent(
+                new Event("cartUpdated")
+            );
             alert(
                 "Order Placed Successfully"
             );
 
             navigate("/orders");
-
         } catch (error) {
 
-            console.log(error);
+    console.log(error);
 
-            alert(
-                "Failed to place order"
-            );
-        }
+    console.log(
+        "ERROR RESPONSE:",
+        error.response
+    );
+
+    console.log(
+        "ERROR DATA:",
+        error.response?.data
+    );
+
+    alert(
+        error.response?.data ||
+        "Failed to place order"
+    );
+}
     };
     return (
         <div className="container py-4">
@@ -249,7 +260,7 @@ function Checkout() {
                                     cartItems.map((item) => (
 
                                         <div
-                                            key={item.id}
+                                            key={item.cartId || item.id}
                                             className="d-flex justify-content-between mb-2"
                                         >
                                             <span>

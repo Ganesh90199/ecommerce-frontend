@@ -34,17 +34,24 @@ function Navbar() {
 
           const response =
             await getCartDetails();
+          console.log(
+            "Cart Details Response:",
+            response.data
+          );
 
-          setCartCount(
-
+          const count =
             response.data.reduce(
               (total, item) =>
                 total + item.cartQuantity,
               0
-            )
+            );
 
+          console.log(
+            "Navbar Count =",
+            count
           );
 
+          setCartCount(count);
         }
 
         const wishlist =
