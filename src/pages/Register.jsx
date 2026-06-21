@@ -21,12 +21,33 @@ function RegisterPage() {
   };
 
   const handleRegister = async () => {
+    if (!formData.name.trim()) {
+
+      alert("Full Name is required");
+
+      return;
+    }
+
+    if (!formData.email.trim()) {
+
+      alert("Email is required");
+
+      return;
+    }
+
+    if (!formData.password.trim()) {
+
+      alert("Password is required");
+
+      return;
+    }
 
     try {
 
       await api.post(
         "/auth/register",
         {
+          name: formData.name,
           email: formData.email,
           password: formData.password,
           role: "USER"
@@ -41,9 +62,18 @@ function RegisterPage() {
 
     } catch (error) {
 
-      alert(
-        "Registration Failed"
-      );
+      console.log(error);
+
+      if (
+        error.response?.data?.message?.includes("already")
+      ) {
+
+        alert("User already exists");
+
+      } else {
+
+        alert("Registration Failed");
+      }
     }
   };
 

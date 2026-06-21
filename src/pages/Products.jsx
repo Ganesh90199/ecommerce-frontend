@@ -40,21 +40,29 @@ function Products() {
     const [toastMessage, setToastMessage] =
         useState("");
 
-    const [wishlist, setWishlist] = useState(
-        JSON.parse(localStorage.getItem("wishlist")) || []
-    );
+    const [wishlist, setWishlist] = useState([]);
 
+    const userEmail =
+        localStorage.getItem("userEmail");
+
+    const wishlistKey =
+        `wishlist_${userEmail}`;
 
     useEffect(() => {
 
         loadProducts();
         loadCart();
 
+        setWishlist(
+            JSON.parse(
+                localStorage.getItem(wishlistKey)
+            ) || []
+        );
         const refreshWishlist = () => {
 
             setWishlist(
                 JSON.parse(
-                    localStorage.getItem("wishlist")
+                    localStorage.getItem(wishlistKey)
                 ) || []
             );
         };
@@ -167,7 +175,7 @@ function Products() {
         setWishlist(updatedWishlist);
 
         localStorage.setItem(
-            "wishlist",
+            wishlistKey,
             JSON.stringify(updatedWishlist)
         );
 
@@ -186,6 +194,11 @@ function Products() {
     const addToCart = async (product) => {
 
         const token = localStorage.getItem("token");
+        const userEmail =
+            localStorage.getItem("userEmail");
+
+        const wishlistKey =
+            `wishlist_${userEmail}`;
 
         if (!token) {
 
@@ -536,190 +549,250 @@ function Products() {
 
             <div className="row">
 
-                {filteredProducts.map((product) => (
-                    <div
-                        className="col-xl-3 col-lg-4 col-md-6 mb-4"
-                        key={product.id}
-                    >
-                        <div className="card h-100 shadow-sm border-0 position-relative">
+                {filteredProducts.map((product) => {
+                    const discount =
+                        (product.id % 21) + 10;
 
-                            <img
-                                src={product.imageUrl}
-                                alt={product.name}
-                                className="card-img-top"
-                                style={{
-                                    height: "220px",
-                                    objectFit: "cover",
-                                }}
-                            />
+                    const originalPrice =
+                        Math.round(
+                            product.price /
+                            (1 - discount / 100)
+                        );
 
-                            <div className="card-body">
+                    return (
+                        <div
+                            className="col-xl-3 col-lg-4 col-md-6 mb-4"
+                            key={product.id}
+                        >
+                            <div className="card h-100 shadow-sm border-0 position-relative">
 
-                                <h5>{product.name}</h5>
+                                <img
+                                    src={product.imageUrl}
+                                    alt={product.name}
+                                    className="card-img-top"
+                                    style={{
+                                        height: "220px",
+                                        objectFit: "cover",
+                                    }}
+                                />
 
-                                <p className="text-muted mb-1">
-                                    {product.brand || "No Brand"}
-                                </p>
+                                <div className="card-body">
 
-                                <p className="text-warning">
-                                    ⭐ {product.rating || "N/A"}
-                                </p>
+                                    <h5>{product.name}</h5>
 
-                                <h4 className="text-success">
-                                    ₹{product.price}
-                                </h4>
+                                    <p className="text-muted mb-1">
+                                        {product.brand || "No Brand"}
+                                    </p>
 
+                                    <p className="text-warning">
+                                        ⭐ {product.rating || "N/A"}
+                                    </p>
 
+                                    <h6 className="text-muted text-decoration-line-through mb-1">
+                                        ₹{originalPrice}
+                                    </h6>
 
-                                <div className="d-grid gap-2 mt-3">
+                                    <h4 className="text-success mb-1">
+                                        ₹{product.price}
+                                    </h4>
 
-                                    <button
-                                        className="btn position-absolute top-0 end-0 m-2 border-0 fs-4"
-                                        style={{
-                                            background: "white",
-                                            borderRadius: "50%"
-                                        }}
-                                        onClick={() =>
-                                            toggleWishlist(product)
-                                        }
-                                    >
-                                        {
-                                            wishlist.some(
-                                                item => item.id === product.id
-                                            )
-                                                ? "❤️"
-                                                : "🤍"
-                                        }
-                                    </button>
+                                    <span className="badge bg-danger">
+                                        {discount}% OFF
+                                    </span>
 
                                     {
-                                        cart.find(
-                                            item => item.productId === product.id
-                                        ) &&
-                                            Number(product.stock || product.quantity || 0) > 0 ? (
-
-                                            <div className="d-flex justify-content-center align-items-center gap-2">
-
-                                                <button
-                                                    className="btn btn-danger"
-                                                    onClick={() =>
-                                                        decreaseQuantity(product)
-                                                    }
-                                                >
-                                                    -
-                                                </button>
-
-                                                <span className="fw-bold fs-5">
-                                                    {
-                                                        cart.find(
-                                                            item => item.productId === product.id
-                                                        )?.cartQuantity || 1
-                                                    }
-                                                </span>
-
-                                                <button
-                                                    className="btn btn-success"
-                                                    onClick={() =>
-                                                        increaseQuantity(product)
-                                                    }
-                                                >
-                                                    +
-                                                </button>
-
-                                            </div>
-
+                                        Number(product.stock || product.quantity || 0) > 10 ? (
+                                            <span className="badge bg-success ms-2">
+                                                In Stock
+                                            </span>
+                                        ) : Number(product.stock || product.quantity || 0) > 0 ? (
+                                            <span className="badge bg-warning ms-2">
+                                                Low Stock
+                                            </span>
                                         ) : (
+                                            <span className="badge bg-danger ms-2">
+                                                Out Of Stock
+                                            </span>
+                                        )
+                                    }
 
-                                            Number(product.stock || product.quantity || 0) === 0 ? (
 
-                                                <button
-                                                    className="btn text-white"
-                                                    style={{
-                                                        backgroundColor: "#8B0000"
-                                                    }}
-                                                    disabled
-                                                >
-                                                    Out Of Stock
-                                                </button>
+
+                                    <div className="d-grid gap-2 mt-3">
+                                        {role !== "ADMIN" && (
+                                            <button
+                                                className="btn position-absolute top-0 end-0 m-2 border-0 fs-4"
+                                                style={{
+                                                    background: "white",
+                                                    borderRadius: "50%"
+                                                }}
+                                                onClick={() =>
+                                                    toggleWishlist(product)
+                                                }
+                                            >
+                                                {
+                                                    token &&
+                                                        wishlist.some(
+                                                            item => item.id === product.id
+                                                        )
+                                                        ? "❤️"
+                                                        : "🤍"
+                                                }
+                                            </button>
+                                        )}
+
+                                        {
+                                            cart.find(
+                                                item => item.productId === product.id
+                                            ) &&
+                                                Number(product.stock || product.quantity || 0) > 0 ? (
+
+                                                <div className="d-flex justify-content-center align-items-center gap-2">
+
+                                                    <button
+                                                        className="btn btn-danger"
+                                                        onClick={() =>
+                                                            decreaseQuantity(product)
+                                                        }
+                                                    >
+                                                        -
+                                                    </button>
+
+                                                    <span className="fw-bold fs-5">
+                                                        {
+                                                            cart.find(
+                                                                item => item.productId === product.id
+                                                            )?.cartQuantity || 1
+                                                        }
+                                                    </span>
+
+                                                    <button
+                                                        className="btn btn-success"
+                                                        onClick={() =>
+                                                            increaseQuantity(product)
+                                                        }
+                                                    >
+                                                        +
+                                                    </button>
+
+                                                </div>
 
                                             ) : (
 
-
-                                                role !== "ADMIN" && (
+                                                Number(product.stock || product.quantity || 0) === 0 ? (
 
                                                     <button
-                                                        className="btn btn-primary"
-                                                        onClick={() =>
-                                                            addToCart(product)
-                                                        }
+                                                        className="btn text-white"
+                                                        style={{
+                                                            backgroundColor: "#8B0000"
+                                                        }}
+                                                        disabled
                                                     >
-                                                        Add To Cart
+                                                        Out Of Stock
                                                     </button>
 
+                                                ) : (
+
+
+                                                    role !== "ADMIN" && (
+
+                                                        <button
+                                                            className="btn btn-primary"
+                                                            onClick={() =>
+                                                                addToCart(product)
+                                                            }
+                                                        >
+                                                            Add To Cart
+                                                        </button>
+
+                                                    )
+
                                                 )
-
                                             )
-                                        )
-                                    }
+                                        }
 
-                                    {
-                                        role !== "ADMIN" &&
-                                        Number(product.stock || product.quantity || 0) > 0 && (
+                                        {
+                                            role !== "ADMIN" &&
+                                            Number(product.stock || product.quantity || 0) > 0 && (
 
-                                            <button
-                                                className="btn btn-success"
-                                                onClick={async () => {
+                                                <button
+                                                    className="btn btn-success"
+                                                    onClick={async () => {
 
-                                                    try {
+                                                        const token =
+                                                            localStorage.getItem("token");
 
-                                                        const existing =
-                                                            cart.find(
-                                                                item =>
-                                                                    item.productId === product.id
+                                                        if (!token) {
+
+                                                            setToastMessage(
+                                                                "Please login to buy products"
                                                             );
 
-                                                        if (!existing) {
+                                                            setShowToast(true);
 
-                                                            await addToCartApi(
-                                                                product.id,
-                                                                1
-                                                            );
+                                                            setTimeout(() => {
 
-                                                            await loadCart();
+                                                                setShowToast(false);
 
-                                                            window.dispatchEvent(
-                                                                new Event("cartUpdated")
-                                                            );
+                                                                navigate("/login");
+
+                                                            }, 1000);
+
+                                                            return;
                                                         }
 
-                                                        navigate("/checkout");
+                                                        try {
 
-                                                    } catch (error) {
+                                                            const existing =
+                                                                cart.find(
+                                                                    item =>
+                                                                        item.productId === product.id
+                                                                );
 
-                                                        console.log(error);
+                                                            if (!existing) {
 
-                                                        setToastMessage(
-                                                            "Failed to proceed"
-                                                        );
+                                                                await addToCartApi(
+                                                                    product.id,
+                                                                    1
+                                                                );
 
-                                                        setShowToast(true);
-                                                    }
-                                                }}
-                                            >
-                                                Buy Now
-                                            </button>
-                                        )
-                                    }
+                                                                await loadCart();
 
-                                </div>
-                                <div className="d-grid mt-2">
+                                                                window.dispatchEvent(
+                                                                    new Event("cartUpdated")
+                                                                );
+                                                            }
 
-                                    <Link
-                                        to={`/product/${product.id}`}
-                                        className="btn btn-outline-dark"
-                                    >
-                                        View Details
-                                    </Link>
+                                                            navigate("/checkout");
+
+                                                        } catch (error) {
+
+                                                            console.log(error);
+
+                                                            setToastMessage(
+                                                                "Failed to proceed"
+                                                            );
+
+                                                            setShowToast(true);
+                                                        }
+                                                    }}
+                                                >
+                                                    Buy Now
+                                                </button>
+                                            )
+                                        }
+
+                                    </div>
+                                    <div className="d-grid mt-2">
+
+                                        <Link
+                                            to={`/product/${product.id}`}
+                                            className="btn btn-dark"
+                                        >
+                                            View Details
+                                        </Link>
+
+                                    </div>
 
                                 </div>
 
@@ -727,12 +800,11 @@ function Products() {
 
                         </div>
 
-                    </div>
-
-                ))}
+                    );
+                })}
             </div>
 
-        </div>
+        </div >
     );
 }
 export default Products;

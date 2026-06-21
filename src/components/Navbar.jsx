@@ -13,6 +13,7 @@ function Navbar() {
 
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("userEmail");
 
     window.dispatchEvent(
       new Event("cartUpdated")
@@ -54,9 +55,15 @@ function Navbar() {
           setCartCount(count);
         }
 
+        const userEmail =
+          localStorage.getItem("userEmail");
+
+        const wishlistKey =
+          `wishlist_${userEmail}`;
+
         const wishlist =
           JSON.parse(
-            localStorage.getItem("wishlist")
+            localStorage.getItem(wishlistKey)
           ) || [];
 
         setWishlistCount(

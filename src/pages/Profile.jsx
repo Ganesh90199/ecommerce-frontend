@@ -10,14 +10,29 @@ function Profile() {
     });
 
     const [isEditing, setIsEditing] = useState(false);
+    const userEmail =
+        localStorage.getItem("userEmail");
+
+    const profileKey =
+        `profile_${userEmail}`;
 
     useEffect(() => {
 
         const savedProfile =
-            JSON.parse(localStorage.getItem("profile"));
+            JSON.parse(localStorage.getItem(profileKey));
 
         if (savedProfile) {
+
             setProfile(savedProfile);
+
+        } else {
+
+            setProfile({
+                name: "",
+                email: userEmail || "",
+                phone: "",
+                address: ""
+            });
         }
 
     }, []);
@@ -26,6 +41,23 @@ function Profile() {
 
         const { name, value } = e.target;
 
+        if (name === "phone") {
+
+            const phoneOnly =
+                value.replace(/\D/g, "");
+
+            if (phoneOnly.length > 10) {
+                return;
+            }
+
+            setProfile({
+                ...profile,
+                phone: phoneOnly
+            });
+
+            return;
+        }
+
         setProfile({
             ...profile,
             [name]: value,
@@ -33,9 +65,16 @@ function Profile() {
     };
 
     const saveProfile = () => {
+        if (!/^[6-9]\d{9}$/.test(profile.phone)) {
 
+            alert(
+                "Please enter a valid 10-digit mobile number"
+            );
+
+            return;
+        }
         localStorage.setItem(
-            "profile",
+            profileKey,
             JSON.stringify(profile)
         );
 
@@ -71,7 +110,7 @@ function Profile() {
                         </label>
 
                         <input
-                            type="text"
+                            type="tel"
                             name="name"
                             className="form-control"
                             value={profile.name}
@@ -101,8 +140,8 @@ function Profile() {
                         </label>
 
                         <input
-                            type="text"
-                            name="phone"
+                            type="tel"
+                            name="phone" maxLength={10}
                             className="form-control"
                             value={profile.phone}
                             onChange={handleChange}

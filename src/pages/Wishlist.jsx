@@ -5,11 +5,19 @@ import {
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
+  const userEmail =
+    localStorage.getItem("userEmail");
+
+  const wishlistKey =
+    `wishlist_${userEmail}`;
 
   useEffect(() => {
-    const savedWishlist =
-      JSON.parse(localStorage.getItem("wishlist")) || [];
 
+
+    const savedWishlist =
+      JSON.parse(
+        localStorage.getItem(wishlistKey)
+      ) || [];
     setWishlist(savedWishlist);
   }, []);
 
@@ -21,7 +29,7 @@ function Wishlist() {
     setWishlist(updatedWishlist);
 
     localStorage.setItem(
-      "wishlist",
+      wishlistKey,
       JSON.stringify(updatedWishlist)
     );
     window.dispatchEvent(

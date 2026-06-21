@@ -258,9 +258,23 @@ const Cart = () => {
 
                       <h5>{item.name}</h5>
 
-                      <h6 className="text-success">
+
+                      <h6 className="text-muted text-decoration-line-through mb-1">
+                        ₹{
+                          Math.round(
+                            item.price /
+                            (1 - (((item.productId || item.id) % 21) + 10) / 100)
+                          )
+                        }
+                      </h6>
+
+                      <h6 className="text-success mb-1">
                         ₹{item.price}
                       </h6>
+
+                      <span className="badge bg-danger px-2 py-1">
+                        {((item.productId || item.id) % 21) + 10}% OFF
+                      </span>
 
                       <div className="d-flex align-items-center gap-2 my-3">
 
@@ -291,11 +305,19 @@ const Cart = () => {
                       <p>
                         Subtotal:
                         <strong>
-                          {" "}
-                          ₹
-                          {item.price *
-                            item.cartQuantity}
+                          ₹{item.price * item.cartQuantity}
                         </strong>
+                      </p>
+
+                      <p className="text-success mb-0">
+                        You Save ₹{
+                          (
+                            Math.round(
+                              item.price /
+                              (1 - (((item.productId || item.id) % 21) + 10) / 100)
+                            ) - item.price
+                          ) * item.cartQuantity
+                        }
                       </p>
 
                       <button

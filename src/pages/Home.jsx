@@ -1,32 +1,29 @@
 import { Link } from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import { getAllProducts } from "../services/productService";
 function Home() {
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "iPhone 15",
-      price: 80000,
-      image: "https://picsum.photos/300?1",
-    },
-    {
-      id: 5,
-      name: "MacBook Pro",
-      price: 120000,
-      image: "https://picsum.photos/300?5",
-    },
-    {
-      id: 13,
-      name: "Nike Shoes",
-      price: 2999,
-      image: "https://picsum.photos/300?13",
-    },
-    {
-      id: 18,
-      name: "Python Book",
-      price: 699,
-      image: "https://picsum.photos/300?18",
-    },
-  ];
+
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [dealProducts, setDealProducts] = useState([]);
+  useEffect(() => {
+    loadFeaturedProducts();
+  }, []);
+
+  const loadFeaturedProducts = async () => {
+    try {
+      const response = await getAllProducts();
+
+      setFeaturedProducts(
+        response.data.slice(0, 4)
+      );
+
+      setDealProducts(
+        response.data.slice(4, 7)
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div>
@@ -167,12 +164,16 @@ function Home() {
                 <div className="card shadow-sm h-100">
 
                   <img
-                    src={product.image}
+                    src={product.imageUrl}
                     alt={product.name}
                     className="card-img-top"
+                    style={{
+                      height: "220px",
+                      objectFit: "contain"
+                    }}
                   />
-
                   <div className="card-body text-center">
+
 
                     <h5>{product.name}</h5>
 
@@ -208,47 +209,70 @@ function Home() {
 
         <div className="row">
 
-          <div className="col-md-4 mb-3">
-            <Link
-              to="/product/1"
-              className="text-decoration-none"
-            >
-              <div className="card border-success shadow-sm">
-                <div className="card-body text-center">
-                  <h5>📱 iPhone 15</h5>
-                  <p>20% OFF</p>
-                </div>
-              </div>
-            </Link>
-          </div>
+          {dealProducts.map((product) => (
 
-          <div className="col-md-4 mb-3">
-            <Link
-              to="/product/5"
-              className="text-decoration-none"
+            <div
+              className="col-md-4 mb-3"
+              key={product.id}
             >
-              <div className="card border-warning shadow-sm">
-                <div className="card-body text-center">
-                  <h5>💻 MacBook Pro</h5>
-                  <p>15% OFF</p>
-                </div>
-              </div>
-            </Link>
-          </div>
 
-          <div className="col-md-4 mb-3">
-            <Link
-              to="/product/13"
-              className="text-decoration-none"
-            >
-              <div className="card border-info shadow-sm">
-                <div className="card-body text-center">
-                  <h5>👟 Nike Shoes</h5>
-                  <p>30% OFF</p>
+              <Link
+                to={`/product/${product.id}`}
+                className="text-decoration-none"
+              >
+
+                <div className="card border-success shadow-sm">
+
+                  <div className="card-body text-center">
+
+                    <img
+                      src={product.imageUrl}
+                      alt={product.name}
+                      className="img-fluid rounded"
+                      style={{
+                        height: "350px",
+                        width: "100%",
+                        objectFit: "contain"
+                      }}
+                    />
+
+                    <h5>{product.name}</h5>
+                    <h6
+                      className="text-muted text-decoration-line-through"
+                    >
+                      ₹{Math.round(product.price * 1.25)}
+                    </h6>
+
+                    <h4 className="text-success">
+                      ₹{product.price}
+                    </h4>
+
+                    <span className="badge bg-danger">
+                      {Math.round(
+                        (
+                          (product.price * 1.25 - product.price)
+                          /
+                          (product.price * 1.25)
+                        ) * 100
+                      )}% OFF
+                    </span>
+                    <p className="text-success mt-2 fw-bold">
+                      Save ₹
+                      {
+                        Math.round(
+                          product.price * 0.25
+                        )
+                      }
+                    </p>
+                  </div>
+
                 </div>
-              </div>
-            </Link>
-          </div>
+
+              </Link>
+
+            </div>
+
+          ))}
 
         </div>
 

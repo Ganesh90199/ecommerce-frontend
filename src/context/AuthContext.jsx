@@ -25,14 +25,19 @@ const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("userEmail");
 
     setToken(null);
     setRole(null);
     setIsAuthenticated(false);
-  };
 
+    window.dispatchEvent(
+      new Event("wishlistUpdated")
+    );
+  };
   useEffect(() => {
     const token = localStorage.getItem("token");
 

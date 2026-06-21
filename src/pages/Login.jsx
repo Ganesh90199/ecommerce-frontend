@@ -49,6 +49,11 @@ const Login = () => {
         response.data.role
       );
 
+      localStorage.setItem(
+        "userEmail",
+        email
+      );
+
       if (
         response.data.role === "ADMIN"
       ) {

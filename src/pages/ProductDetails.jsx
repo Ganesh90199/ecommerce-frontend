@@ -7,9 +7,31 @@ function ProductDetails() {
 
     const { id } = useParams();
     const navigate = useNavigate();
-
+    const role = localStorage.getItem("role");
     const [product, setProduct] = useState(null);
 
+    const userEmail =
+        localStorage.getItem("userEmail");
+
+    const wishlistKey =
+        `wishlist_${userEmail}`;
+
+    const [wishlist, setWishlist] = useState(
+        JSON.parse(
+            localStorage.getItem(wishlistKey)
+        ) || []
+    );
+    useEffect(() => {
+
+        const token =
+            localStorage.getItem("token");
+
+        if (!token) {
+
+            setWishlist([]);
+        }
+
+    }, []);
     useEffect(() => {
 
         loadProduct();
@@ -63,10 +85,22 @@ function ProductDetails() {
                 1
             );
 
-            alert(
-                "Added To Cart"
+            window.dispatchEvent(
+                new Event("cartUpdated")
             );
 
+            window.dispatchEvent(
+                new CustomEvent(
+                    "showToast",
+                    {
+                        detail: {
+                            message:
+                                "Added To Cart",
+                            type: "success"
+                        }
+                    }
+                )
+            );
         } catch (error) {
 
             console.log(error);
@@ -108,36 +142,50 @@ function ProductDetails() {
 
         if (!token) {
 
-            alert("Please login to use wishlist");
+            alert(
+                "Please login to use wishlist"
+            );
 
             navigate("/login");
 
             return;
         }
 
-        const wishlist =
-            JSON.parse(
-                localStorage.getItem("wishlist")
-            ) || [];
-
         const exists =
             wishlist.find(
                 item => item.id === product.id
             );
 
-        if (!exists) {
+        let updatedWishlist;
 
-            wishlist.push(product);
+        if (exists) {
 
-            localStorage.setItem(
-                "wishlist",
-                JSON.stringify(wishlist)
-            );
+            updatedWishlist =
+                wishlist.filter(
+                    item => item.id !== product.id
+                );
+
+        } else {
+
+            updatedWishlist = [
+                ...wishlist,
+                product
+            ];
         }
 
-        alert("Added to Wishlist ❤️");
-    };
+        setWishlist(
+            updatedWishlist
+        );
 
+        localStorage.setItem(
+            wishlistKey,
+            JSON.stringify(updatedWishlist)
+        );
+
+        window.dispatchEvent(
+            new Event("wishlistUpdated")
+        );
+    };
     return (
 
         <div
@@ -151,17 +199,21 @@ function ProductDetails() {
 
                 <div className="row">
 
-                    <div className="col-md-5 text-center">
+                    <div className="col-md-4 text-center">
 
                         <img
                             src={product.imageUrl}
                             alt={product.name}
-                            className="img-fluid"
+                            className="img-fluid rounded"
+                            style={{
+                                maxHeight: "350px",
+                                objectFit: "contain"
+                            }}
                         />
 
                     </div>
 
-                    <div className="col-md-7">
+                    <div className="col-md-8">
 
                         <h2>{product.name}</h2>
 
@@ -181,38 +233,48 @@ function ProductDetails() {
                             {product.description}
                         </p>
 
-                        <div className="d-flex gap-3">
+                        {role !== "ADMIN" && (
 
-                            <button
-                                className="btn btn-primary"
-                                onClick={addToCart}
-                            >
-                                Add To Cart
-                            </button>
+                            <div className="d-flex gap-3">
 
-                            <button
-                                className="btn btn-success"
-                                onClick={buyNow}
-                            >
-                                Buy Now
-                            </button>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={addToCart}
+                                >
+                                    Add To Cart
+                                </button>
 
-                            <button
-                                className="btn btn-outline-danger"
-                                onClick={addToWishlist}
-                            >
-                                Wishlist ❤️
-                            </button>
+                                <button
+                                    className="btn btn-success"
+                                    onClick={buyNow}
+                                >
+                                    Buy Now
+                                </button>
 
-                        </div>
+                                <button
+                                    className="btn btn-outline-danger"
+                                    onClick={addToWishlist}
+                                >
+                                    {
+                                        localStorage.getItem("token") &&
+                                            wishlist.some(
+                                                item => item.id === product.id
+                                            )
+                                            ? "❤️ Wishlisted"
+                                            : "🤍 Wishlist"
+                                    }
+                                </button>
 
+                            </div>
+
+                        )}
                     </div>
 
                 </div>
 
             </div>
 
-        </div>
+        </div >
     );
 }
 
