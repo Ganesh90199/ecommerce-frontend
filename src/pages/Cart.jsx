@@ -85,7 +85,7 @@ const Cart = () => {
         new Event("cartUpdated")
       );
       setToastMessage(
-        `${item.name} quantity decreased`
+        `${item.name} quantity increased`
       );
 
       setShowToast(true);

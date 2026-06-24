@@ -1,0 +1,69 @@
+package com.qsp.employee.management.system.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import com.qsp.employee.management.system.connection.GetConnection;
+import com.qsp.employee.management.system.entity.EmployeeEntity;
+
+public class EmployeeDao {		
+	Connection con=GetConnection.getConnectionObject();
+
+		//design a method to perform insert operation
+		public boolean saveEmployee(EmployeeEntity emp) {	
+			try {
+				String insertQuery="insert into emp values(?,?,?,?,?,?,?,?)";
+				PreparedStatement pstm = con.prepareStatement(insertQuery);
+
+				//set the values
+ 				pstm.setInt   (1, emp.getEmpid());
+				pstm.setString(2, emp.getName());
+				pstm.setString(3, emp.getEmail());
+				pstm.setString(4, emp.getDesignation());
+				pstm.setString(5, emp.getGender());
+				pstm.setString(6, emp.getAddress());
+				pstm.setString(7, emp.getDepartment());
+				pstm.setDouble(8, emp.getSalary());
+				
+				int row=pstm.executeUpdate();
+				
+				return row>0;//if row is >0 means data is inserted
+				
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+			return false;
+		}
+		
+		public boolean deteEmployeeById(int empid) {
+			try {
+				String delQuery="delete from emp where empid=?";
+				PreparedStatement pstm=con.prepareStatement(delQuery);
+				
+				pstm.setInt(1, empid);
+
+				int row=pstm.executeUpdate();
+
+				return row>0;
+			}catch(SQLException e) {
+				e.printStackTrace();
+			}
+			return false;
+		}
+		public boolean updateEmpById(String ename, int empid) {
+			String update="update emp set name=? where empid=?";
+			try {
+				PreparedStatement pstm=con.prepareStatement(update);
+				pstm.setString(1, ename);
+				pstm.setInt(2, empid);
+				
+				int row=pstm.executeUpdate();
+				
+				return row>0;
+			}catch(SQLException e) {
+				e.printStackTrace();
+		}
+			return false;
+	}
+}

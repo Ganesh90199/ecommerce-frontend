@@ -50,6 +50,28 @@ function ManageOrders() {
             console.log(error);
         }
     };
+    const getStatusOptions = (currentStatus) => {
+
+        if (currentStatus === "PLACED") {
+
+            return [
+                "PLACED",
+                "SHIPPED",
+                "CANCELLED"
+            ];
+        }
+
+        if (currentStatus === "SHIPPED") {
+
+            return [
+                "SHIPPED",
+                "DELIVERED"
+            ];
+        }
+
+        return [currentStatus];
+    };
+
     return (
         <div className="container py-4">
 
@@ -154,21 +176,19 @@ function ManageOrders() {
                                                         )
                                                     }
                                                 >
-                                                    <option value="PLACED">
-                                                        PLACED
-                                                    </option>
+                                                    {
+                                                        getStatusOptions(order.status)
+                                                            .map((status) => (
 
-                                                    <option value="SHIPPED">
-                                                        SHIPPED
-                                                    </option>
+                                                                <option
+                                                                    key={status}
+                                                                    value={status}
+                                                                >
+                                                                    {status}
+                                                                </option>
 
-                                                    <option value="DELIVERED">
-                                                        DELIVERED
-                                                    </option>
-
-                                                    <option value="CANCELLED">
-                                                        CANCELLED
-                                                    </option>
+                                                            ))
+                                                    }
 
                                                 </select>
 

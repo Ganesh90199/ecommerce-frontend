@@ -180,9 +180,7 @@ function MyOrders() {
                     <button
                       className="btn btn-danger mt-3"
                       onClick={() =>
-                        handleCancelOrder(
-                          order.id
-                        )
+                        handleCancelOrder(order.id)
                       }
                     >
                       Cancel Order

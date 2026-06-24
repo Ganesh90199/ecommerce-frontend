@@ -23,7 +23,6 @@ import Cart from "../pages/Cart";
 import Orders from "../pages/MyOrders";
 
 
-
 import Dashboard from "../pages/admin/Dashboard";
 
 import ProductDetails from "../pages/ProductDetails";
@@ -31,6 +30,7 @@ import Wishlist from "../pages/Wishlist";
 import Profile from "../pages/Profile";
 
 import ProtectedRoute from "../components/ProtectedRoute";
+import AdminProtectedRoute from "../components/AdminProtectedRoute";
 
 const AppRoutes = () => {
   return (
@@ -65,20 +65,40 @@ const AppRoutes = () => {
 
 
       <Route
-        path="/admin/manage-orders"
-        element={<ManageOrders />}
+        path="/admin/add-product"
+        element={
+          <AdminProtectedRoute>
+            <AddProduct />
+          </AdminProtectedRoute>
+        }
       />
 
       <Route
-        path="/admin/update-product/:id"
-        element={<UpdateProduct />}
+        path="/admin/dashboard"
+        element={
+          <AdminProtectedRoute>
+            <Dashboard />
+          </AdminProtectedRoute>
+        }
       />
 
       <Route
         path="/admin/manage-products"
-        element={<ManageProducts />}
+        element={
+          <AdminProtectedRoute>
+            <ManageProducts />
+          </AdminProtectedRoute>
+        }
       />
 
+      <Route
+        path="/admin/manage-orders"
+        element={
+          <AdminProtectedRoute>
+            <ManageOrders />
+          </AdminProtectedRoute>
+        }
+      />
 
 
       <Route
@@ -101,10 +121,7 @@ const AppRoutes = () => {
         element={<Products />}
       />
 
-      <Route
-        path="/admin/add-product"
-        element={<AddProduct />}
-      />
+
       <Route
         path="/product/:id"
         element={<ProductDetails />}
@@ -154,10 +171,8 @@ const AppRoutes = () => {
           ADMIN ROUTES
       ========================= */}
 
-      <Route
-        path="/admin/dashboard"
-        element={<Dashboard />}
-      />
+  
+  
 
       {/* =========================
           404 PAGE
